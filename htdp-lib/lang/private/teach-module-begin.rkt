@@ -155,6 +155,9 @@
            #`(#%plain-module-begin
               #,(stepper-syntax-property
                  #`(begin
+                     (current-namespace
+                      (variable-reference->namespace
+                       (#%variable-reference)))
                      (define repl? #f) ; whether we're in the REPL now
                      (let ((handle (uncaught-exception-handler)))
                        (uncaught-exception-handler
