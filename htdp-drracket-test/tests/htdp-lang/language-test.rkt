@@ -53,44 +53,10 @@ the settings above should match r5rs
 (define (beginner)
   (parameterize ([language (list #rx"Beginning Student(;|$)")])
     (check-top-of-repl)
-    (generic-settings #t)
-    (generic-output #f #f #f #f #f #f)
     (teaching-language-fraction-output)
-    
-    (test-hash-bang)
-    (test-error-after-definition)
     
     (prepare-for-test-expression)
     
-    (test-expression "'|.|" 
-                     "'|.|"
-                     "'|.|")
-    (test-expression '("(equal? (list " image ") (list " image "))") 
-                     "#true"
-                     "#true")
-    
-    (test-expression "(define x 1)(define x 2)"
-                     "x: this name was defined previously and cannot be re-defined"
-                     "x: this name was defined previously and cannot be re-defined")
-    
-    (test-expression "(define-struct spider (legs))(make-spider 4)" 
-                     "(make-spider 4)"
-                     "spider: this name was defined previously and cannot be re-defined")
-    
-    (test-expression "(sqrt -1)" 
-                     "0+1i"
-                     "0+1i\n")
-    
-    (test-undefined-var "class") 
-    (test-undefined-var "shared")
-    (test-expression "(define (. x y) (* x y))" "read-syntax: illegal use of `.`")
-    (test-expression "'(1 . 2)"  "read-syntax: illegal use of `.`")
-    
-    (test-undefined-var "call/cc")
-    
-    (test-expression "(error 'a \"~a\" 1)" "a: ~a1")
-    (test-expression "(error \"a\" \"a\")" "aa")
-
     (test-expression "(check-expect 1 1)"
                      "The test passed!"
                      "Both tests passed!")
@@ -107,109 +73,7 @@ the settings above should match r5rs
                      (λ (got) #t)) ;; just skip the interactions test
     (test-expression "(define (badfn x) (error \"hello\"))\n(check-expect (badfn 1) 1)\n(error \"hello\")"
                      #rx"0 tests passed[.].*hello"
-                     (λ (got) #t))
-    
-    (test-undefined-fn "(time 1)" "time")
-    
-    (test-expression "true" 
-                     "#true"
-                     "#true")
-    (test-undefined-var "mred^")
-    (test-expression "(eq? 'a 'A)" 
-                     "#false"
-                     "#false")
-    (test-undefined-fn "(set! x 1)" "set!")
-    (test-undefined-fn "(define qqq 2) (set! qqq 1)" "set!")
-    
-    (test-expression "(cond [(= 1 2) 3])"
-                     "cond: all question results were false")
-    (test-expression "(cons 1 2)" 
-                     "cons: second argument must be a list, but received 1 and 2")
-    (test-expression "(+ (list 1) 2)"
-                     #rx"[+]: expects a number(?: as 1st argument)?, given [(]cons 1 '[(][)][)]")
-    (test-expression "'(1)"
-                     "quote: expected the name of a symbol or () after the quote, but found a part")
-    (test-expression "(define shrd (list 1)) (list shrd shrd)"
-                     "(cons (cons 1 '()) (cons (cons 1 '()) '()))"
-                     "shrd: this name was defined previously and cannot be re-defined")
-  (test-expression 
-   "(local ((define x x)) 1)" 
-   "local: this function is not defined" 
-   "function call: expected a function after the open parenthesis, but found a part")
-  (test-expression 
-   "(letrec ([x x]) 1)" 
-   "letrec: this function is not defined"
-   "function call: expected a function after the open parenthesis, but found a part")
-    (test-expression "(if 1 1 1)" "if: question result is not true or false: 1")
-    (test-expression "(+ 1)" "+: expects at least 2 arguments, but found only 1")
-    
-    (test-expression "1.0" "1" "1")
-    (test-expression "#i1.0" "#i1.0" "#i1.0")
-    (test-expression "4/3" 
-                     "{number 4/3 \"1.3\" decimal}"
-                     "{number 4/3 \"1.3\" decimal}")
-    (test-expression "1/3"
-                     "{number 1/3 \"0.3\" decimal}"
-                     "{number 1/3 \"0.3\" decimal}")
-    (test-expression "-4/3" 
-                     "{number -4/3 \"-1.3\" decimal}"
-                     "{number -4/3 \"-1.3\" decimal}")
-    (test-expression "-1/3" 
-                     "{number -1/3 \"-0.3\" decimal}"
-                     "{number -1/3 \"-0.3\" decimal}")
-    (test-expression "3/2" 
-                     "{number 3/2 \"1.5\" decimal}"
-                     "{number 3/2 \"1.5\" decimal}")
-    (test-expression "1/2" 
-                     "{number 1/2 \"0.5\" decimal}"
-                     "{number 1/2 \"0.5\" decimal}")
-    (test-expression "-1/2" 
-                     "{number -1/2 \"-0.5\" decimal}"
-                     "{number -1/2 \"-0.5\" decimal}")
-    (test-expression "-3/2" 
-                     "{number -3/2 \"-1.5\" decimal}"
-                     "{number -3/2 \"-1.5\" decimal}")
-    (test-expression "+1/3i" 
-                     "0+1/3i"
-                     "0+1/3i")
-    (test-expression "+1/2i" 
-                     "0+0.5i"
-                     "0+0.5i")
-    (test-expression "779625/32258"
-                     "{number 779625/32258 \"24.1684233368466736933473866...\" decimal}"
-                     "{number 779625/32258 \"24.1684233368466736933473866...\" decimal}")
-    (test-expression "(exact? 1.5)" "#true")
-    (test-undefined-fn "(print (floor (sqrt 2)))" "print")
-    
-  (test-expression
-   "(let ([f (lambda (x) x)]) f)"
-   "let: this function is not defined"
-   "function call: expected a function after the open parenthesis, but found a part")
-    (test-expression ",1"
-                     "read-syntax: illegal use of `,`")
-    
-    (test-expression "(list 1)" 
-                     "(cons 1 '())"
-                     "(cons 1 '())")
-    (test-expression "(car (list))" 
-                     "car: expects a pair, given '()")
-    
-    (test-undefined-var "argv")
-    (test-undefined-fn "(define-syntax app syntax-case)" "define-syntax")
-    
-    (test-expression "#lang racket"
-                     #rx"read-syntax: `#lang` not enabled"
-                     #rx"read-syntax: `#lang` not enabled")
-    (test-expression (string-append "(define (f)\n"
-                                    "(+ (raise-user-error 'a \"b\")))\n"
-                                    "(if (zero? (random 1)) (void) (set! f void))\n"
-                                    "(f)")
-                     "define: expected at least one variable after the function name, but found none"
-                     #rx"define: function definitions are not allowed in the interactions window")
-    
-    (test-expression "(require racket/gui/base)(require racket/class)(make-object bitmap% 1 1)"
-                     "{image}"
-                     "{image}")))
+                     (λ (got) #t))))
 
 ;; This test suite from 2015 has some failing cases; they are commented out
 (define (bsl)
@@ -456,45 +320,9 @@ the settings above should match r5rs
   (parameterize ([language (list #rx"Beginning Student with List Abbreviations(;|$)")])
     (check-top-of-repl)
     
-    (generic-settings #t)
-    (generic-output #t #f #f #f #f #f)
     (teaching-language-fraction-output)
     
-    (test-hash-bang)
-    
-    (test-error-after-definition)
-    
     (prepare-for-test-expression)
-    
-    (test-expression "'|.|" 
-                     "'|.|"
-                     "'|.|")
-    (test-expression '("(equal? (list " image ") (list " image "))") 
-                     "#true"
-                     "#true")
-    
-    (test-expression "(define x 1)(define x 2)"
-                     "x: this name was defined previously and cannot be re-defined"
-                     "x: this name was defined previously and cannot be re-defined")
-    
-    (test-expression "(define-struct spider (legs))(make-spider 4)"
-                     "(make-spider 4)"
-                     "spider: this name was defined previously and cannot be re-defined")
-    
-    (test-expression "(sqrt -1)" 
-                     "0+1i"
-                     "0+1i")
-    
-    (test-undefined-var "class")
-    (test-undefined-var "shared")
-    
-    (test-expression "(define (. x y) (* x y))"  "read-syntax: illegal use of `.`")
-    (test-expression "'(1 . 2)"  "read-syntax: illegal use of `.`")
-    
-    (test-undefined-var "call/cc")
-    
-    (test-expression "(error 'a \"~a\" 1)" "a: ~a1")
-    (test-expression "(error \"a\" \"a\")" "aa")
     
     (test-expression "(check-expect 1 1)"
                      "The test passed!"
@@ -512,106 +340,7 @@ the settings above should match r5rs
                      (λ (got) #t)) ;; just skip the interactions test
     (test-expression "(define (badfn x) (error \"hello\"))\n(check-expect (badfn 1) 1)\n(error \"hello\")"
                      #rx"0 tests passed[.].*hello"
-                     (λ (got) #t))
-
-(test-undefined-fn "(time 1)" "time")
-    
-    (test-expression "true" 
-                     "#true"
-                     "#true")
-    (test-undefined-var "mred^")
-    (test-expression "(eq? 'a 'A)" 
-                     "#false"
-                     "#false")
-    (test-undefined-fn "(set! x 1)" "set!")
-    (test-undefined-fn "(define qqq 2) (set! qqq 1)" "set!")
-    (test-expression "(cond [(= 1 2) 3])" "cond: all question results were false")
-    (test-expression "(cons 1 2)" "cons: second argument must be a list, but received 1 and 2")
-    (test-expression "(+ (list 1) 2)" #rx"[+]: expects a number(?: as 1st argument)?, given [(]list 1[)]")
-    (test-expression "'(1)" 
-                     "(list 1)"
-                     "(list 1)")
-    (test-expression "(define shrd (list 1)) (list shrd shrd)"
-                     "(list (list 1) (list 1))"
-                     "shrd: this name was defined previously and cannot be re-defined")
-    (test-expression
-     "(local ((define x x)) 1)"
-     "local: this function is not defined"
-     "function call: expected a function after the open parenthesis, but found a part")
-    (test-expression
-     "(letrec ([x x]) 1)"
-     "letrec: this function is not defined"
-     "function call: expected a function after the open parenthesis, but found a part")
-    (test-expression "(if 1 1 1)" "if: question result is not true or false: 1")
-    (test-expression "(+ 1)" "+: expects at least 2 arguments, but found only 1")
-    
-    (test-expression "1.0" "1" "1")
-    (test-expression "#i1.0" "#i1.0" "#i1.0")
-    (test-expression "4/3" 
-                     "{number 4/3 \"1.3\" decimal}"
-                     "{number 4/3 \"1.3\" decimal}")
-    (test-expression "1/3" 
-                     "{number 1/3 \"0.3\" decimal}"
-                     "{number 1/3 \"0.3\" decimal}")
-    (test-expression "-4/3" 
-                     "{number -4/3 \"-1.3\" decimal}"
-                     "{number -4/3 \"-1.3\" decimal}")
-    (test-expression "-1/3" 
-                     "{number -1/3 \"-0.3\" decimal}"
-                     "{number -1/3 \"-0.3\" decimal}")
-    (test-expression "3/2" 
-                     "{number 3/2 \"1.5\" decimal}"
-                     "{number 3/2 \"1.5\" decimal}")
-    (test-expression "1/2" 
-                     "{number 1/2 \"0.5\" decimal}"
-                     "{number 1/2 \"0.5\" decimal}")
-    (test-expression "-1/2" 
-                     "{number -1/2 \"-0.5\" decimal}"
-                     "{number -1/2 \"-0.5\" decimal}")
-    (test-expression "-3/2" 
-                     "{number -3/2 \"-1.5\" decimal}"
-                     "{number -3/2 \"-1.5\" decimal}")
-    (test-expression "+1/3i" 
-                     "0+1/3i"
-                     "0+1/3i")
-    (test-expression "+1/2i" 
-                     "0+0.5i"
-                     "0+0.5i")
-    (test-expression "779625/32258"
-                     "{number 779625/32258 \"24.1684233368466736933473866...\" decimal}"
-                     "{number 779625/32258 \"24.1684233368466736933473866...\" decimal}")
-    (test-expression "(exact? 1.5)" "#true")
-    (test-undefined-fn "(print (floor (sqrt 2)))" "print")
-    
-    (test-expression 
-     "(let ([f (lambda (x) x)]) f)" 
-     "let: this function is not defined"
-     "function call: expected a function after the open parenthesis, but found a part")
-    (test-expression ",1"
-                     "unquote: misuse of a comma or unquote, not under a quasiquoting backquote")
-    
-    (test-expression "(list 1)" 
-                     "(list 1)"
-                     "(list 1)")
-    (test-expression "(car (list))" "car: expects a pair, given '()")
-    
-    (test-undefined-var "argv")
-    
-    (test-undefined-fn "(define-syntax app syntax-case)" "define-syntax")
-    
-    (test-expression "#lang racket"
-                     #rx"read-syntax: `#lang` not enabled"
-                     #rx"read-syntax: `#lang` not enabled")
-    (test-expression (string-append "(define (f)\n"
-                                    "(+ (raise-user-error 'a \"b\")))\n"
-                                    "(if (zero? (random 1)) (void) (set! f void))\n"
-                                    "(f)")
-                     "define: expected at least one variable after the function name, but found none"
-                     #rx"define: function definitions are not allowed in the interactions window")
-    
-    (test-expression "(require racket/gui/base)(require racket/class)(make-object bitmap% 1 1)"
-                     "{image}"
-                     "{image}")))
+                     (λ (got) #t))))
 
 
 ;                                                                                          
@@ -634,44 +363,9 @@ the settings above should match r5rs
   (parameterize ([language (list #rx"Intermediate Student(;|$)")])
     (check-top-of-repl)
     
-    (generic-settings #t)
-    (generic-output #t #f #f #f #f #f)
     (teaching-language-fraction-output)
     
-    (test-hash-bang)
-    (test-error-after-definition)
-    
     (prepare-for-test-expression)
-    
-    (test-expression "'|.|" 
-                     "'|.|"
-                     "'|.|")
-    (test-expression '("(equal? (list " image ") (list " image "))") 
-                     "#true"
-                     "#true")
-    
-    (test-expression "(define x 1)(define x 2)"
-                     "x: this name was defined previously and cannot be re-defined"
-                     "x: this name was defined previously and cannot be re-defined")
-    
-    (test-expression "(define-struct spider (legs))(make-spider 4)"
-                     "(make-spider 4)"
-                     "spider: this name was defined previously and cannot be re-defined")
-    
-    (test-expression "(sqrt -1)" 
-                     "0+1i"
-                     "0+1i")
-    
-    (test-undefined-var "class")
-    (test-undefined-var "shared")
-    
-    (test-expression "(define (. x y) (* x y))"  "read-syntax: illegal use of `.`")
-    (test-expression "'(1 . 2)"  "read-syntax: illegal use of `.`")
-    
-    (test-undefined-var "call/cc")
-    
-    (test-expression "(error 'a \"~a\" 1)" "a: ~a1")
-    (test-expression "(error \"a\" \"a\")" "aa")
 
     (test-expression "(check-expect 1 1)"
                      "The test passed!"
@@ -691,98 +385,17 @@ the settings above should match r5rs
                      #rx"0 tests passed[.].*hello"
                      (λ (got) #t))
     
-    (test-expression "(time 1)" 
-                     #rx"cpu time: [0-9]+ real time: [0-9]+ gc time: [0-9]+\n1")
-    
-    (test-expression "true" 
-                     "#true"
-                     "#true")
-    (test-undefined-var "mred^")
-    (test-expression "(eq? 'a 'A)" 
-                     "#false"
-                     "#false")
-    (test-undefined-fn "(set! x 1)" "set!")
-    (test-undefined-fn "(define qqq 2) (set! qqq 1)" "set!")
-    (test-expression "(cond [(= 1 2) 3])" "cond: all question results were false")
-    (test-expression "(cons 1 2)"   "cons: second argument must be a list, but received 1 and 2")
-    (test-expression "(+ (list 1) 2)" #rx"[+]: expects a number(?: as 1st argument)?, given [(]list 1[)]")
-    (test-expression "'(1)" 
-                     "(list 1)"
-                     "(list 1)")
-    (test-expression "(define shrd (list 1)) (list shrd shrd)"
-                     "(list (list 1) (list 1))"
-                     "shrd: this name was defined previously and cannot be re-defined")
-    (test-expression "(local ((define x x)) 1)" "local variable used before its definition: x")
-    (test-expression "(letrec ([x x]) 1)" "local variable used before its definition: x")
-    (test-expression "(if 1 1 1)" "if: question result is not true or false: 1")
-    (test-expression "(+ 1)" "1")
-    
-    (test-expression "1.0" "1" "1")
-    (test-expression "#i1.0" "#i1.0" "#i1.0")
-    (test-expression "4/3" 
-                     "{number 4/3 \"1.3\" decimal}"
-                     "{number 4/3 \"1.3\" decimal}")
-    (test-expression "1/3" 
-                     "{number 1/3 \"0.3\" decimal}"
-                     "{number 1/3 \"0.3\" decimal}")
-    (test-expression "-4/3" 
-                     "{number -4/3 \"-1.3\" decimal}"
-                     "{number -4/3 \"-1.3\" decimal}")
-    (test-expression "-1/3" 
-                     "{number -1/3 \"-0.3\" decimal}"
-                     "{number -1/3 \"-0.3\" decimal}")
-    (test-expression "3/2" 
-                     "{number 3/2 \"1.5\" decimal}"
-                     "{number 3/2 \"1.5\" decimal}")
-    (test-expression "1/2" 
-                     "{number 1/2 \"0.5\" decimal}"
-                     "{number 1/2 \"0.5\" decimal}")
-    (test-expression "-1/2" 
-                     "{number -1/2 \"-0.5\" decimal}"
-                     "{number -1/2 \"-0.5\" decimal}")
-    (test-expression "-3/2" 
-                     "{number -3/2 \"-1.5\" decimal}"
-                     "{number -3/2 \"-1.5\" decimal}")
-    (test-expression "+1/3i" 
-                     "0+1/3i"
-                     "0+1/3i")
-    (test-expression "+1/2i" 
-                     "0+0.5i"
-                     "0+0.5i")
-    (test-expression "779625/32258" 
-                     "{number 779625/32258 \"24.1684233368466736933473866...\" decimal}"
-                     "{number 779625/32258 \"24.1684233368466736933473866...\" decimal}")
-    (test-expression "(exact? 1.5)" "#true")
-    (test-undefined-fn "(print (floor (sqrt 2)))" "print")
-    
     (test-expression "(let ([f (lambda (x) x)]) f)" 
                      "function:f"
                      "function:f")
-    (test-expression ",1"
-                     "unquote: misuse of a comma or unquote, not under a quasiquoting backquote")
     
-    (test-expression "(list 1)" 
-                     "(list 1)"
-                     "(list 1)")
-    (test-expression "(car (list))" "car: expects a pair, given '()")
-    (test-undefined-var "argv")
-    
-    (test-undefined-fn "(define-syntax app syntax-case)" "define-syntax")
-    
-    (test-expression "#lang racket"
-                     #rx"read-syntax: `#lang` not enabled"
-                     #rx"read-syntax: `#lang` not enabled")
     (test-expression
      (string-append "(define (f)\n"
                     "(+ (raise-user-error 'a \"b\")))\n"
                     "(if (zero? (random 1)) (void) (set! f void))\n"
                     "(f)")
      "define: expected at least one variable after the function name, but found none"
-     #rx"define: expected at least one variable after the function name, but found none")
-    
-    (test-expression "(require racket/gui/base)(require racket/class)(make-object bitmap% 1 1)"
-                     "{image}"
-                     "{image}")))
+     #rx"define: expected at least one variable after the function name, but found none")))
 
 
 
@@ -807,43 +420,9 @@ the settings above should match r5rs
   (parameterize ([language (list #rx"Intermediate Student with lambda(;|$)")])
     (check-top-of-repl)
     
-    (generic-settings #t)
-    (generic-output #t #f #f #f #f #f)
     (teaching-language-fraction-output)
     
-    (test-hash-bang)
-    (test-error-after-definition)
-    
     (prepare-for-test-expression)
-    
-    (test-expression "'|.|"
-                     "'|.|"
-                     "'|.|")
-    (test-expression '("(equal? (list " image ") (list " image "))") 
-                     "#true"
-                     "#true")
-    (test-expression "(define x 1)(define x 2)"
-                     "x: this name was defined previously and cannot be re-defined"
-                     "x: this name was defined previously and cannot be re-defined")
-    
-    (test-expression "(define-struct spider (legs))(make-spider 4)"
-                     "(make-spider 4)"
-                     "spider: this name was defined previously and cannot be re-defined")
-    
-    (test-expression "(sqrt -1)" 
-                     "0+1i"
-                     "0+1i")
-    
-    (test-undefined-var "class")
-    (test-undefined-var "shared")
-    
-    (test-expression "(define (. x y) (* x y))" "read-syntax: illegal use of `.`")
-    (test-expression "'(1 . 2)" "read-syntax: illegal use of `.`")
-    
-    (test-undefined-var "call/cc")
-    
-    (test-expression "(error 'a \"~a\" 1)" "a: ~a1")
-    (test-expression "(error \"a\" \"a\")" "aa")
     
     (test-expression "(check-expect 1 1)"
                      "The test passed!"
@@ -863,94 +442,16 @@ the settings above should match r5rs
                      #rx"0 tests passed[.].*hello"
                      (λ (got) #t))
 
-    (test-expression "(time 1)" 
-                     #rx"cpu time: [0-9]+ real time: [0-9]+ gc time: [0-9]+\n1")
-    
-    (test-expression "true" 
-                     "#true"
-                     "#true")
-    (test-undefined-var "mred^")
-    (test-expression "(eq? 'a 'A)" 
-                     "#false"
-                     "#false")
-    (test-undefined-fn "(set! x 1)" "set!")
-    (test-undefined-fn "(define qqq 2) (set! qqq 1)" "set!")
-    (test-expression "(cond [(= 1 2) 3])" "cond: all question results were false")
-    (test-expression "(cons 1 2)" "cons: second argument must be a list, but received 1 and 2")
-    (test-expression "(+ (list 1) 2)" #rx"[+]: expects a number(?: as 1st argument)?, given [(]list 1[)]")
-    (test-expression "'(1)" 
-                     "(list 1)"
-                     "(list 1)")
-    (test-expression "(define shrd (list 1)) (list shrd shrd)"
-                     "(list (list 1) (list 1))"
-                     "shrd: this name was defined previously and cannot be re-defined")
-    (test-expression "(local ((define x x)) 1)" "local variable used before its definition: x")
-    (test-expression "(letrec ([x x]) 1)" "local variable used before its definition: x")
-    (test-expression "(if 1 1 1)" "if: question result is not true or false: 1")
-    (test-expression "(+ 1)" "1")
-    
-    (test-expression "1.0" "1" "1")
-    (test-expression "#i1.0" "#i1.0" "#i1.0")
-    (test-expression "4/3" 
-                     "{number 4/3 \"1.3\" decimal}"
-                     "{number 4/3 \"1.3\" decimal}")
-    (test-expression "1/3" 
-                     "{number 1/3 \"0.3\" decimal}"
-                     "{number 1/3 \"0.3\" decimal}")
-    (test-expression "-4/3" 
-                     "{number -4/3 \"-1.3\" decimal}"
-                     "{number -4/3 \"-1.3\" decimal}")
-    (test-expression "-1/3" 
-                     "{number -1/3 \"-0.3\" decimal}"
-                     "{number -1/3 \"-0.3\" decimal}")
-    (test-expression "3/2" 
-                     "{number 3/2 \"1.5\" decimal}"
-                     "{number 3/2 \"1.5\" decimal}")
-    (test-expression "1/2" 
-                     "{number 1/2 \"0.5\" decimal}"
-                     "{number 1/2 \"0.5\" decimal}")
-    (test-expression "-1/2" 
-                     "{number -1/2 \"-0.5\" decimal}"
-                     "{number -1/2 \"-0.5\" decimal}")
-    (test-expression "-3/2" 
-                     "{number -3/2 \"-1.5\" decimal}"
-                     "{number -3/2 \"-1.5\" decimal}")
-    (test-expression "+1/3i" "0+1/3i" "0+1/3i")
-    (test-expression "+1/2i" "0+0.5i" "0+0.5i")
-    (test-expression "779625/32258" 
-                     "{number 779625/32258 \"24.1684233368466736933473866...\" decimal}"
-                     "{number 779625/32258 \"24.1684233368466736933473866...\" decimal}")
-    (test-expression "(exact? 1.5)" "#true")
-    (test-undefined-fn "(print (floor (sqrt 2)))" "print")
-    
     (test-expression "(let ([f (lambda (x) x)]) f)" 
                      "f"
                      "f")
-    (test-expression ",1"
-                       "unquote: misuse of a comma or unquote, not under a quasiquoting backquote")
-    
-    (test-expression "(list 1)" 
-                     "(list 1)"
-                     "(list 1)")
-    (test-expression "(car (list))" "car: expects a pair, given '()")
-    (test-undefined-var "argv")
-    
-    (test-undefined-fn "(define-syntax app syntax-case)" "define-syntax")
-    
-    (test-expression "#lang racket"
-                     #rx"read-syntax: `#lang` not enabled"
-                     #rx"read-syntax: `#lang` not enabled")
     (test-expression
      (string-append "(define (f)\n"
                     "(+ (raise-user-error 'a \"b\")))\n"
                     "(if (zero? (random 1)) (void) (set! f void))\n"
                     "(f)")
      "define: expected at least one variable after the function name, but found none"
-     #rx"define: expected at least one variable after the function name, but found none")
-    
-    (test-expression "(require racket/gui/base)(require racket/class)(make-object bitmap% 1 1)"
-                     "{image}"
-                     "{image}")))
+     #rx"define: expected at least one variable after the function name, but found none")))
 
 
 
@@ -975,41 +476,9 @@ the settings above should match r5rs
   (parameterize ([language (list #rx"Advanced Student(;|$)")])
     (check-top-of-repl)
     
-    (generic-settings #t)
-    (generic-output #t #f #t #t #f #f)
     (teaching-language-fraction-output)
     
-    (test-hash-bang)
-    (test-error-after-definition)
-    
     (prepare-for-test-expression)
-    
-    (test-expression "'|.|" 
-                     "'|.|"
-                     "'|.|")
-    (test-expression '("(equal? (list " image ") (list " image "))") 
-                     "#true"
-                     "#true")
-    (test-expression "(define x 1)(define x 2)"
-                     "x: this name was defined previously and cannot be re-defined"
-                     "x: this name was defined previously and cannot be re-defined")
-    
-    (test-expression "(define-struct spider (legs))(make-spider 4)"
-                     "(make-spider 4)"
-                     "spider: this name was defined previously and cannot be re-defined")
-    
-    (test-expression "(sqrt -1)" 
-                     "0+1i"
-                     "0+1i")
-    
-    (test-undefined-var "class")
-    
-    (test-expression "shared" "shared: expected an open parenthesis before shared, but found none")
-    
-    (test-expression "(define (. x y) (* x y))"  "read-syntax: illegal use of `.`")
-    (test-expression "'(1 . 2)"  "read-syntax: illegal use of `.`")
-    
-    (test-undefined-var "call/cc")
     
     (test-expression "(error 'a \"~a\" 1)" "a: ~a1")
     (test-expression "(error \"a\" \"a\")" "aa")
@@ -1031,102 +500,17 @@ the settings above should match r5rs
     (test-expression "(define (badfn x) (error \"hello\"))\n(check-expect (badfn 1) 1)\n(error \"hello\")"
                      #rx"0 tests passed[.].*hello"
                      (λ (got) #t))
-
-    (test-expression "(time 1)" 
-                     #rx"cpu time: [0-9]+ real time: [0-9]+ gc time: [0-9]+\n1")
-    
-    (test-expression "true" 
-                     "#true"
-                     "#true")
-    (test-undefined-var "mred^")
-    (test-expression "(eq? 'a 'A)" 
-                     "#false"
-                     "#false")
-    (test-expression "(set! x 1)"
-                     "x: this variable is not defined"
-                     "set!: cannot set variable before its definition: x")
-    (test-expression "(define qqq 2) (set! qqq 1)" 
-                     "(void)" 
-                     "qqq: this name was defined previously and cannot be re-defined")
-    (test-expression "(cond [(= 1 2) 3])" "cond: all question results were false")
-    (test-expression "(cons 1 2)"  "cons: second argument must be a list, but received 1 and 2")
-    (test-expression "(+ (list 1) 2)" #rx"[+]: expects a number(?: as 1st argument)?, given [(]list 1[)]")
-    (test-expression "'(1)" 
-                     "(list 1)"
-                     "(list 1)")
-    (test-expression "(define shrd (list 1)) (list shrd shrd)"
-                     "(shared ((-1- (list 1))) (list -1- -1-))"
-                     "shrd: this name was defined previously and cannot be re-defined")
-    (test-expression "(local ((define x x)) 1)" "local variable used before its definition: x")
-    (test-expression "(letrec ([x x]) 1)" "local variable used before its definition: x")
-    (test-expression "(if 1 1 1)" "if: question result is not true or false: 1")
-    (test-expression "(+ 1)" "1")
-    
-    (test-expression "1.0" "1" "1")
-    (test-expression "#i1.0" "#i1.0" "#i1.0")
-    (test-expression "4/3" 
-                     "{number 4/3 \"1.3\" decimal}"
-                     "{number 4/3 \"1.3\" decimal}")
-    (test-expression "1/3" 
-                     "{number 1/3 \"0.3\" decimal}"
-                     "{number 1/3 \"0.3\" decimal}")
-    (test-expression "-4/3" 
-                     "{number -4/3 \"-1.3\" decimal}"
-                     "{number -4/3 \"-1.3\" decimal}")
-    (test-expression "-1/3" 
-                     "{number -1/3 \"-0.3\" decimal}"
-                     "{number -1/3 \"-0.3\" decimal}")
-    (test-expression "3/2" 
-                     "{number 3/2 \"1.5\" decimal}"
-                     "{number 3/2 \"1.5\" decimal}")
-    (test-expression "1/2" 
-                     "{number 1/2 \"0.5\" decimal}"
-                     "{number 1/2 \"0.5\" decimal}")
-    (test-expression "-1/2" 
-                     "{number -1/2 \"-0.5\" decimal}"
-                     "{number -1/2 \"-0.5\" decimal}")
-    (test-expression "-3/2" 
-                     "{number -3/2 \"-1.5\" decimal}"
-                     "{number -3/2 \"-1.5\" decimal}")
-    (test-expression "+1/3i" 
-                     "0+1/3i"
-                     "0+1/3i")
-    (test-expression "+1/2i" 
-                     "0+0.5i"
-                     "0+0.5i")
-    (test-expression "779625/32258" 
-                     "{number 779625/32258 \"24.1684233368466736933473866...\" decimal}"
-                     "{number 779625/32258 \"24.1684233368466736933473866...\" decimal}")
-    (test-expression "(exact? 1.5)" "#true")
-    (test-expression "(print (floor (sqrt 2)))" "#i1.0")
     
     (test-expression "(let ([f (lambda (x) x)]) f)" 
                      "f"
                      "f")
-    (test-expression ",1"
-                     "unquote: misuse of a comma or unquote, not under a quasiquoting backquote")
     
-    (test-expression "(list 1)" 
-                     "(list 1)"
-                     "(list 1)")
-    (test-expression "(car (list))" "car: expects a pair, given '()")
-    (test-undefined-var "argv")
-    
-    (test-undefined-fn "(define-syntax app syntax-case)" "define-syntax")
-    
-    (test-expression "#lang racket"
-                     #rx"read-syntax: `#lang` not enabled"
-                     #rx"read-syntax: `#lang` not enabled")
     (test-expression (string-append "(define (f)\n"
                                     "(+ (raise-user-error 'a \"b\")))\n"
                                     "(if (zero? (random 1)) (void) (set! f void))\n"
                                     "(f)")
                      #rx"raise-user-error"
-                     #rx"raise-user-error")
-    
-    (test-expression "(require racket/gui/base)(require racket/class)(make-object bitmap% 1 1)"
-                     "{image}"
-                     "{image}")))
+                     #rx"raise-user-error")))
 
 
 (define (prepare-for-test-expression)
@@ -1169,18 +553,6 @@ the settings above should match r5rs
              expression
              result
              got)))
-
-(define (test-hash-bang)
-  (define expression "#!/bin/sh\n1")
-  (define result "1")
-  (define drs (test:get-active-top-level-window))
-  (queue-callback (λ () (send drs get-interactions-text)))
-  (clear-definitions drs)
-  (insert-in-definitions drs expression)
-  (do-execute drs)
-  (define got (fetch-output/should-be-tested drs))
-  (unless (string=? "1" got)
-    (eprintf "FAILED: ~s ~a test\n expected: ~s\n     got: ~s\n" (language) expression result got)))
 
 (define (fetch-output/should-be-tested . args)
   (regexp-replace (regexp
@@ -1244,145 +616,6 @@ the settings above should match r5rs
    "Fraction Style -- Repeating decimals"
    "4/3"
    "{number 4/3 \"1.3\" decimal}"))
-
-;; plt-language-fraction-output : -> void
-;; tests that the PLT languages properly handle repeating decimals
-(define (plt-language-fraction-output)
-  (test-setting
-   (lambda () (fw:test:set-check-box! "Use decimal notation for rationals" #f))
-   "Use decimal notation for rationals -- #f"
-   "4/3 1/2 -1/3"
-   "{number 4/3 \"1 1/3\" mixed}\n{number 1/2 \"1/2\" mixed}\n{number -1/3 \"- 1/3\" mixed}")
-  (test-setting
-   (lambda () (fw:test:set-check-box! "Use decimal notation for rationals" #t))
-   "Use decimal notation for rationals -- #t"
-   "4/3 1/2 -1/3"
-   (string-append
-    "{number 4/3 \"#e1.3\" decimal}\n"
-    "{number 1/2 \"#e0.5\" decimal}\n"
-    "{number -1/3 \"#e-0.3\" decimal}")))
-
-(define (generic-settings false/true?)
-  (test-setting
-   (lambda () (fw:test:set-check-box! "Case sensitive" #t))
-   "Case sensitive -- #t"
-   "(eq? 'g 'G)" 
-   (if false/true? "#false" "#f"))
-  (test-setting
-   (lambda () (fw:test:set-check-box! "Case sensitive" #f))
-   "Case sensitive -- #f"
-   "(eq? 'g 'G)" 
-   (if false/true? "#true" "#t")))
-
-(define (generic-output list? uses-qq-for-plain-print? quasi-quote? has-sharing? has-print-printing? print-value-columns?)
-  (define plain-print-style (if has-print-printing? "print" "write"))
-  (define drr (wait-for-drracket-frame))
-  (define expression "(define x (list 2))\n(list x x)")
-  (define (set-output-choice option show-sharing pretty?)
-    (set-language #f)
-    (fw:test:set-radio-box! (find-output-radio-box "Output Style") option)
-    (when (and has-sharing? show-sharing)
-      (fw:test:set-check-box!
-       "Show sharing in values"
-       (eq? show-sharing 'on)))
-    (fw:test:set-check-box!
-     "Insert newlines in printed values"
-     pretty?)
-    (define f (test:get-active-top-level-window))
-    (fw:test:button-push "OK")
-    (wait-for-new-frame f))
-  (define (shorten str)
-    (if ((string-length str) . <= . 45)
-        str
-        (string-append (substring str 0 45) "...")))
-  (define (test option show-sharing pretty? answer)
-    ;; answer must either be a string, or a procedure that accepts both zero and 1
-    ;; argument. When the procedure accepts 1 arg, the argument is `got' and
-    ;; the result must be a boolean indicating if the result was satisfactory.
-    ;; if the procedure receives no arguments, it must return a descriptive string
-    ;; for the error message
-    (set-output-choice option show-sharing pretty?)
-    (do-execute drr)
-    (define got (fetch-output/should-be-tested drr))
-    (unless (if (procedure? answer)
-                (answer got)
-                (whitespace-string=? answer got))
-      (eprintf "FAILED ~s ~a, sharing ~a \"Insert newlines in printed values\" ~a\n"
-               (language) option show-sharing pretty?)
-      (eprintf "     got ~s\n" (shorten got))
-      (eprintf "expected ~s\n" (if (procedure? answer) (answer) answer))))
-  
-  (clear-definitions drr)
-  (insert-in-definitions drr (defs-prefix))
-  (insert-in-definitions drr expression)
-  
-  (test plain-print-style 'off #t (if uses-qq-for-plain-print? "'((2) (2))" "((2) (2))"))
-  (when has-sharing?
-    (test plain-print-style 'on #t (if uses-qq-for-plain-print? "'(#0=(2) #0#)" "(#0=(2) #0#)")))
-  (when quasi-quote?
-    (test "Quasiquote" 'off #t "`((2) (2))")
-    (when has-sharing?
-      (test "Quasiquote" 'on #t "(shared ((-1- `(2))) `(,-1- ,-1-))")))
-  
-  (test "Constructor" 'off #t
-        (if list?
-            "(list (list 2) (list 2))"
-            "(cons (cons 2 '()) (cons (cons 2 '()) '()))"))
-  (when has-sharing?
-    (test "Constructor" 'on #t
-          (if list?
-              "(shared ((-1- (list 2))) (list -1- -1-))"
-              "(shared ((-1- (cons 2 '()))) (cons -1- (cons -1- '())))")))
-  
-  ;; setup print / pretty-print difference
-  (clear-definitions drr)
-  (insert-in-definitions drr (defs-prefix))
-  (insert-in-definitions 
-   drr
-   "(define (f n)\n(cond ((zero? n) (list))\n(else (cons n (f (- n 1))))))\n(f 200)")
-  (test "Constructor" #f #f
-        (case-lambda
-          [(x) (not (member #\newline (string->list x)))]
-          [() "no newlines in result"]))
-  (test "Constructor" #f #t
-        (case-lambda
-          [(x) (member #\newline (string->list x))]
-          [() "newlines in result (may need to make the window smaller)"]))
-  (test plain-print-style #f #f
-        (case-lambda
-          [(x) (not (member #\newline (string->list x)))]
-          [() "no newlines in result"]))
-  (test plain-print-style #f #t
-        (case-lambda
-          [(x) (member #\newline (string->list x))]
-          [() "newlines in result (may need to make the window smaller)"]))
-  
-  (when has-print-printing?
-    (clear-definitions drr)
-    (insert-in-definitions drr (defs-prefix))
-    (insert-in-definitions drr "(print 'hello (current-output-port) 1)")
-    (test plain-print-style #f #t "hello")
-    (test plain-print-style #f #f "hello"))
-
-  (when print-value-columns?
-    (set-output-choice plain-print-style #f #t)
-    (let ()
-      (clear-definitions drr)
-      (insert-in-definitions drr (defs-prefix))
-      (insert-in-definitions drr "(build-list 100 values)")
-      (do-execute drr)
-      (define got (fetch-output/should-be-tested drr))
-      (unless (member #\newline (string->list got))
-        (eprintf "long output should have contained newlines, got ~s\n" got)))
-    
-    (clear-definitions drr)
-    (insert-in-definitions drr (defs-prefix))
-    (insert-in-definitions drr "(print-value-columns 1000)")
-    (insert-in-definitions drr "(build-list 100 values)")
-    (do-execute drr)
-    (define got (fetch-output/should-be-tested drr))
-    (when (member #\newline (string->list got))
-      (eprintf "long output should not have contained newlines, got ~s\n" got))))
 
 (define (find-output-radio-box label)
   (define frame (test:get-active-top-level-window))

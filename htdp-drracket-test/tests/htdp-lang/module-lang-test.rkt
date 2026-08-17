@@ -13,31 +13,9 @@
          racket/class)
 (provide run-test)
 
-;; set up for tests that need external files
-(write-test-modules
- (module module-lang-test-tmp1 mzscheme
-   (provide (all-from-except mzscheme +)
-            x)
-   (define x 1))
- (module module-lang-test-tmp2 mzscheme
-   (provide e)
-   (define e #'1))
- (module module-lang-test-tmp3 mzscheme
-   (define-syntax (bug-datum stx)
-     (syntax-case stx ()
-       [(dat . thing)
-        (number? (syntax-e (syntax thing)))
-        (syntax/loc stx (#%datum . thing))]))
-   (provide #%module-begin [rename bug-datum #%datum]))
- (module module-lang-test-tmp4 racket/base
-   (/ 888 2)
-   (provide (except-out (all-from-out racket/base) #%top-interaction)))
- (module module-lang-test-syn-error racket/base
-   (lambda)))
-
-(test '("#lang racket\n" xml-box)
+(test '("#lang htdp/bsl+\n" xml-box)
       #f
-      @t{'(a () "x")})
+      @t{(list 'a '() "x")})
 
 (test @t{#lang htdp/bsl
          1 2 3}
